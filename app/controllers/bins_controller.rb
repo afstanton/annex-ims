@@ -1,5 +1,4 @@
 class BinsController < ApplicationController
-  before_action :authenticate_user!
 
   def index
     @bins = Bin.includes(:matches).where.not(matches: { id: nil })
@@ -13,14 +12,7 @@ class BinsController < ApplicationController
     @match = Match.find(params[:match_id])
     bin_id = @match.bin.id
 
-    LogActivity.call(@match.item, "Dissociated", @match.item.bin, Time.now, current_user)
-
-    @match.item.bin = nil
-    @match.item.save!
-    @match.bin = nil
-    @match.save!
-
-    ApiPostDeliverItem.call(@match.id, current_user)
+    ProcessMatch.call(match: @match, user: current_user)
 
     redirect_to show_bin_path(:id => bin_id)
   end

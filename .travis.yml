@@ -1,15 +1,18 @@
+sudo: false
 language: ruby
+cache:
+  bundler: true
 rvm:
 - 2.1.4
-script: "bundle exec rspec spec --tag '~ignore:travis'"
-cache: bundler
-sudo: false
-before_install:
-- travis_retry gem install bundler
+addons:
+  postgresql: "9.4"
 before_script:
+- export DISPLAY=:99.0
+- sh -e /etc/init.d/xvfb start
 - cp config/secrets.yml.travis config/secrets.yml
 - cp config/database.yml.travis config/database.yml
 - psql -c 'create database travis_ci_test;' -U postgres
+script: "bundle exec rspec spec"
 notifications:
   hipchat:
     rooms:

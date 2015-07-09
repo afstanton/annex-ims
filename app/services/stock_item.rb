@@ -15,10 +15,10 @@ class StockItem
 
     item.stocked!
     UpdateIngestDate.call(item)
-    ApiPostStockItem.call(item.id) # A bit of a hack, because when this gets shifted to a background job we only want it stocked after a successful API call. For now, this will do.
+    ApiStockItemJob.perform_later(item: item)
 
     if item.save!
-      LogActivity.call(item, "Stocked", item.tray, Time.now, user)
+      ActivityLogger.stock_item(item: item, tray: item.tray, user: user)
       result = item
     else
       result = false

@@ -1,5 +1,4 @@
 class TraysController < ApplicationController
-  before_action :authenticate_user!
 
   def index
     @tray = Tray.new
@@ -70,7 +69,7 @@ class TraysController < ApplicationController
     @size = TraySize.call(@tray.barcode)
 
     barcode = params[:barcode]
-    
+
     unless (params[:force] == "true")
       if !@tray.shelf.nil? and (@tray.shelf.barcode != barcode)
         flash[:error] = "#{@tray.barcode} belongs to #{@tray.shelf.barcode}, but #{barcode} was scanned."
@@ -107,11 +106,11 @@ class TraysController < ApplicationController
   def wrong_tray
     @tray = Tray.find(params[:id])
     @barcode = params[:barcode]
-    @item = GetItemFromBarcode.call(current_user.id, @barcode)
+    @item = GetItemFromBarcode.call(barcode: @barcode, user_id: current_user.id)
   end
 
 
-  # Should this area be pulled out into a separate controller? It's all about trays, but with items. 
+  # Should this area be pulled out into a separate controller? It's all about trays, but with items.
   def items
     @tray = Tray.new
   end
@@ -153,10 +152,10 @@ class TraysController < ApplicationController
       return
     end
 
-    item = GetItemFromBarcode.call(current_user.id, barcode)
+    item = GetItemFromBarcode.call(barcode: barcode, user_id: current_user.id)
 
     if item.nil?
-      flash[:error] = "Item #{barcode} not found."
+      flash[:error] = I18n.t("errors.barcode_not_found", barcode: barcode)
       redirect_to missing_tray_item_path(:id => @tray.id)
       return
     end

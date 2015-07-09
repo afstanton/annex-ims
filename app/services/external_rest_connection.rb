@@ -1,39 +1,65 @@
-require 'typhoeus/adapters/faraday'
+require "typhoeus/adapters/faraday"
 
 # class for establishing a rest connection to an external source
 class ExternalRestConnection
+  DEFAULT_CONNECTION_OPTIONS = {
+    max_retries: Rails.configuration.settings.api_max_retries,
+    response_format: "json",
+  }
+
   attr_reader :base_url, :faraday_instance, :connection, :opts, :response
   attr_accessor :request_body
 
   def initialize(base_url: nil, connection_opts: {})
-    @opts = connection_opts
+    @opts = DEFAULT_CONNECTION_OPTIONS.merge(connection_opts)
     @base_url = base_url
     @connection = establish_connection
   end
 
   def max_retries
-    @opts[:max_retries] ||= 2
+    opts[:max_retries]
   end
 
   def response_format
-    @opts[:response_format] ||= 'json'
+    opts[:response_format]
+  end
+
+  def timeout
+    opts[:timeout]
   end
 
   # GET verb
   def get(path)
-    @response = connection.get(path)
+    @response = connection.get do |req|
+      req.url path
+      if timeout
+        req.options.timeout = timeout
+      end
+    end
     process_response
   end
 
   # PUT verb
   def put(path, payload)
-    @response = connection.put(path, payload)
+    @response = connection.put do |req|
+      req.url path
+      req.body = payload
+      if timeout
+        req.options.timeout = timeout
+      end
+    end
     process_response
   end
 
   # POST verb
   def post(path, payload)
-    @response = connection.post(path, payload)
+    @response = connection.post do |req|
+      req.url path
+      req.body = payload
+      if timeout
+        req.options.timeout = timeout
+      end
+    end
     process_response
   end
 
@@ -55,14 +81,20 @@ class ExternalRestConnection
       faraday_instance.request :url_encoded
       faraday_instance.response :json, content_type: /text\/plain/
       faraday_instance.response :xml,  content_type: /\bxml$/
-      faraday_instance.response :caching, file_cache, ignore_params: %w(access_token)
+      if cache_response?
+        faraday_instance.response :caching, file_cache, ignore_params: %w(access_token)
+      end
       faraday_instance.adapter :typhoeus
+  end
+
+  def cache_response?
+    !(Rails.env.test? || Rails.env.development?)
   end
 
   def file_cache
     ActiveSupport::Cache::FileStore.new(
-      File.join(rails_root, '/tmp', 'cache'),
-      namespace: 'api_rest_data',
+      File.join(rails_root, "/tmp", "cache"),
+      namespace: "api_rest_data",
       expires_in: 240  # four minutes
     )
   end
@@ -91,7 +123,7 @@ class ExternalRestConnection
   end
 
   def expected_type?(type)
-    if response_format == 'json'
+    if response_format == "json"
       type =~ /text\/plain/
     else
       type =~ /#{response_format}/
@@ -99,6 +131,6 @@ class ExternalRestConnection
   end
 
   def response_content_type
-    response.headers['Content-Type']
+    response.headers["Content-Type"]
   end
 end

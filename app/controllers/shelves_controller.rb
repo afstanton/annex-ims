@@ -1,5 +1,4 @@
 class ShelvesController < ApplicationController
-  before_action :authenticate_user!
 
   def index
     @shelf = Shelf.new
@@ -32,11 +31,11 @@ class ShelvesController < ApplicationController
 
     thickness = 1 # Because we don't care about thickness here, it just needs to be something valid.
 
-    item = GetItemFromBarcode.call(current_user.id, barcode)
+    item = GetItemFromBarcode.call(barcode: barcode, user_id: current_user.id)
 
     if item.nil?
-      flash[:error] = "Item #{barcode} not found."
-      redirect_to missing_shelf_item_path(:id => @tray.id)
+      flash[:error] = I18n.t("errors.barcode_not_found", barcode: barcode)
+      redirect_to missing_shelf_item_path(id: @shelf.id)
       return
     end
 
@@ -71,6 +70,10 @@ class ShelvesController < ApplicationController
   def wrong
     @shelf = Shelf.find(params[:id])
     @barcode = params[:barcode]
+  end
+
+  def missing
+    @shelf = Shelf.find(params[:id])
   end
 
   def dissociate

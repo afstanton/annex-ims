@@ -1,12 +1,25 @@
-= select_tag :source, options_for_select([["Aleph", "aleph"], ["ILLiad", "illiad"]]), onchange: "table.draw();"
-= select_tag :req_type, options_for_select([["Loan", "loan"], ["Scan", "scan"]]), onchange: "table.draw();"
-= label_tag :rapid, "ILLiad Rapid Requests"
-= check_box_tag :rapid, 1, false, onchange: "table.draw();"
+.row
+  .col-md-8
+    = select_tag :source, options_for_select([["Aleph", "aleph"], ["ILLiad", "illiad"]]), onchange: "table.draw();"
+    = select_tag :req_type, options_for_select([["Loan", "loan"], ["Scan", "scan"]]), onchange: "table.draw();"
+    = label_tag :rapid, "ILLiad Rapid Requests"
+    = check_box_tag :rapid, 1, false, onchange: "table.draw();"
+  .col-md-4
+    .pull-right
+      = link_to sync_requests_path, method: :post, class: 'btn btn-primary' do
+        %span.glyphicon.glyphicon-refresh
+        = "Refresh"
+%br
+.filter
+  = select_tag :source, options_for_select([["Aleph", "aleph"], ["ILLiad", "illiad"]]), onchange: "table.draw();"
+  = select_tag :req_type, options_for_select([["Loan", "loan"], ["Scan", "scan"]]), onchange: "table.draw();"
+  = label_tag :rapid, "ILLiad Rapid Requests"
+  = check_box_tag :rapid, 1, false, onchange: "table.draw();"
 = form_tag create_batch_path do |f|
   %table.table.table-striped.condensed.datatable{"id" => "requests"}
     %thead
       %tr
-        %th
+        %th.add
           'Add to Batch'
           = check_box_tag 'selectAll'
         %th= 'Rapid Request Indicator'
@@ -19,6 +32,7 @@
         %th= 'Request Barcode'
         %th= 'Request ISSN/ISBN'
         %th= 'Request Bib Number'
+        %th= 'Remove Request'
     %tbody
       - @data.each do |row|
         %tr{"data-params" => row['item_data'].to_json}
@@ -33,6 +47,9 @@
           %td= row['barcode']
           %td= row['isbn_issn']
           %td= row['bib_number']
+          %td
+            .actions
+              = link_to "Remove", remove_request_path(row["id"]), method: :delete, data: { confirm: 'Remove request?' }, class: 'btn btn-primary'
   .actions
     = submit_tag 'Save', class: 'btn btn-primary'
 :javascript
@@ -128,12 +145,20 @@
       str += "<th>Chron</th>";
       $.each(json, function( index, item ) {
         str += "<tr>";
-        str += "<td><input class='item' type='checkbox' name='batch[]' id='"+item['id']+"' value='"+item['id']+"' /></td>";
+        if (item['status'] == 'stocked') {
+          str += "<td><input class='item' type='checkbox' name='batch[]' id='"+item['id']+"' value='"+item['id']+"' /></td>";
+        }
+        if (item['status'] == 'unstocked') {
+          str += "<td><span style='color: red'>Unstocked</span></td>";
+        }
+        if (item['status'] == 'shipped') {
+          str += "<td><span style='color: red'>Shipped</span></td>";
+        }
         str += "<td>"+item['shelf']+"</td>";
         str += "<td>"+item['tray']+"</td>";
         str += "<td>"+item['title']+"</td>";
         str += "<td>"+item['author']+"</td>";
-        str += "<td>"+item['chron']+"</td>"; 
+        str += "<td>"+item['chron']+"</td>";
         str += "</tr>";
       } );
       str += "</table>";

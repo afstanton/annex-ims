@@ -14,11 +14,24 @@
 # users commonly want.
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
-
 require 'webmock/rspec'
 require 'capybara/rspec'
+require "simplecov"
+require "coveralls"
+
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter
+]
+SimpleCov.start("rails")
 
 RSpec.configure do |config|
+  # Run specs in random order to surface order dependencies. If you find an
+  # order dependency and want to debug it, you can fix the order by providing
+  # the seed, which is printed after each run.
+  #     --seed 1234
+  config.order = :random
+
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.
@@ -58,9 +71,11 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do |example|
-    # Feature specs can't easily be isolated within a transaction, so we use the truncation strategy here.
+    # Feature specs that make use of Capybara's javascript driver can't easily be isolated
+    #  within a transaction, so we use the truncation strategy here.
     #  See: https://github.com/DatabaseCleaner/database_cleaner/issues/273
-    if [:feature, :request].include? example.metadata[:type]
+    #       https://mattbrictson.com/faster-capybara-specs
+    if example.metadata[:js]
       DatabaseCleaner.strategy = :truncation
     else
       DatabaseCleaner.strategy = :transaction
@@ -71,6 +86,23 @@ RSpec.configure do |config|
 
   config.after(:each) do
     DatabaseCleaner.clean
+  end
+
+  config.before(:suite) do
+    # Preload the fields for ActiveRecord objects to allow use of instance_double
+    [
+      Item,
+      User
+    ].each do |database_model|
+      instance = database_model.new
+      # The first attribute is id, which does not cause the methods to be built on the class
+      field = instance.attributes.keys[1]
+      # Trigger method missing on the instance which dynamically adds the methods to the class
+      instance.send(field)
+
+      # Reload all factories
+      FactoryGirl.reload
+    end
   end
 
 # The settings below are suggested to provide a good initial experience

@@ -1,15 +1,12 @@
 class BatchesController < ApplicationController
-  before_action :authenticate_user!
 
   def index
-    GetRequests.call(current_user.id) # This should go in a queue or scheduler to run periodically.
-
     # Should this be in a service object? It's a relatively simple one-liner.
     requests = Request.all.where("id NOT IN (SELECT request_id FROM matches WHERE processed IS NULL OR processed != 'skipped')")
     @data = BuildRequestData.call(requests)
 
     respond_to do |format|
-      format.html  # index.html.erb 
+      format.html # index.html.erb
     end
   end
 
@@ -84,6 +81,8 @@ class BatchesController < ApplicationController
       @match.processed = "skipped"
       @match.save!
 
+      ActivityLogger.skip_item(item: @match.item, request: @match.request, user: current_user)
+
       redirect_to retrieve_batch_path
       return
     else
@@ -94,6 +93,7 @@ class BatchesController < ApplicationController
         return
       else
         flash[:notice] = "Item #{@match.item.barcode} scanned."
+        ActivityLogger.accept_item(item: @match.item, request: @match.request, user: current_user)
         redirect_to bin_batch_path
         return
       end
@@ -129,6 +129,8 @@ class BatchesController < ApplicationController
       @match.processed = "skipped"
       @match.save!
 
+      ActivityLogger.skip_item(item: @match.item, request: @match.request, user: current_user)
+
       redirect_to retrieve_batch_path
       return
     else
@@ -148,7 +150,7 @@ class BatchesController < ApplicationController
           @match.item.save!
           @match.bin = @bin
           @match.save!
-          LogActivity.call(@match.item, "Associated", @bin, Time.now, current_user)
+          ActivityLogger.associate_item_and_bin(item: @match.item, bin: @bin, user: current_user)
 
           UnstockItem.call(@match.item, current_user)
 

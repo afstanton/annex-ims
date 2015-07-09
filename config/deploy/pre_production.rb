@@ -2,12 +2,11 @@
 # ==================
 # Supports bulk-adding hosts to roles, the primary server in each group
 # is considered to be the first unless any hosts have the primary
-# property set.  Don't declare `role :all`, it's a meta role.
+# property set.  Don"t declare `role :all`, it"s a meta role.
 
-role :app, %w{deploy@example.com}
-role :web, %w{deploy@example.com}
-role :db,  %w{deploy@example.com}
-
+# role :app, %w{app@annex-staging.library.nd.edu}
+# role :web, %w{deploy@example.com}
+# role :db,  %w{deploy@example.com}
 
 # Extended Server Syntax
 # ======================
@@ -15,8 +14,10 @@ role :db,  %w{deploy@example.com}
 # server list. The second argument is a, or duck-types, Hash and is
 # used to set extended properties on the server.
 
-server 'example.com', user: 'deploy', roles: %w{web app}, my_property: :my_value
+# server "example.com", user: "deploy", roles: %w{web app}, my_property: :my_value
+server "annex-pprd.library.nd.edu", user: "app", roles: %w{web app db}
 
+set :rack_env, :pre_production
 
 # Custom SSH Options
 # ==================
@@ -33,13 +34,13 @@ server 'example.com', user: 'deploy', roles: %w{web app}, my_property: :my_value
 #
 # And/or per server (overrides global)
 # ------------------------------------
-# server 'example.com',
-#   user: 'user_name',
+# server "example.com",
+#   user: "user_name",
 #   roles: %w{web app},
 #   ssh_options: {
-#     user: 'user_name', # overrides user setting above
+#     user: "user_name", # overrides user setting above
 #     keys: %w(/home/user_name/.ssh/id_rsa),
 #     forward_agent: false,
 #     auth_methods: %w(publickey password)
-#     # password: 'please use keys'
+#     # password: "please use keys"
 #   }

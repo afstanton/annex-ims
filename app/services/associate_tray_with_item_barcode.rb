@@ -15,13 +15,13 @@ class AssociateTrayWithItemBarcode
   def associate!
     validate_input!
 
-    item = GetItemFromBarcode.call(user_id, barcode)
+    item = GetItemFromBarcode.call(barcode: barcode, user_id: user_id)
     if !item.nil?
       item.tray = tray
       item.thickness = thickness
       if item.save!
         user = User.find(user_id)
-        LogActivity.call(item, "Associated", item.tray, Time.now, user)
+        ActivityLogger.associate_item_and_tray(item: item, tray: item.tray, user: user)
         StockItem.call(item, user)
         return item
       else

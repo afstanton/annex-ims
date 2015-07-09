@@ -7,12 +7,17 @@ RSpec.describe UnstockItem do
   let(:user) { double(User, username: "bob", id: 1)}
 
   before(:each) do
-    allow(LogActivity).to receive(:call).and_return(true)
+    allow(ActivityLogger).to receive(:unstock_item)
     allow(IsObjectItem).to receive(:call).with(item).and_return(true)
   end
 
   it "sets stocked" do
     expect(item).to receive("unstocked!")
+    subject
+  end
+
+  it "logs the activity" do
+    expect(ActivityLogger).to receive(:unstock_item).with(item: item, tray: tray, user: user)
     subject
   end
 
@@ -25,4 +30,17 @@ RSpec.describe UnstockItem do
     expect(subject).to be(false)
   end
 
+  context "no associated tray" do
+    let(:tray) { nil }
+
+    it "doesn't log the activity" do
+      expect(ActivityLogger).not_to receive(:unstock_item).with(item: item, tray: tray, user: user)
+      subject
+    end
+
+    it "still flags it as unstocked" do
+      expect(item).to receive(:unstocked!)
+      subject
+    end
+  end
 end
