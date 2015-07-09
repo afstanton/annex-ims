@@ -10,6 +10,18 @@ class ActivityLogger
     call(action: "ApiGetItemMetadata", item: item, params: params, api_response: api_response)
   end
 
+  def self.api_scan_item(item:, params:, api_response:)
+    call(action: "ApiScanItem", item: item, params: params, api_response: api_response)
+  end
+
+  def self.api_send_item(item:, params:, api_response:)
+    call(action: "ApiSendItem", item: item, params: params, api_response: api_response)
+  end
+
+  def self.api_stock_item(item:, params:, api_response:)
+    call(action: "ApiStockItem", item: item, params: params, api_response: api_response)
+  end
+
   def self.api_remove_request(request:, params:, api_response:)
     call(action: "ApiRemoveRequest", request: request, params: params, api_response: api_response)
   end
@@ -48,6 +60,10 @@ class ActivityLogger
 
   def self.dissociate_tray_and_shelf(tray:, shelf:, user:)
     call(action: "DissociatedTrayAndShelf", user: user, tray: tray, shelf: shelf)
+  end
+
+  def self.fill_request(user:, request:)
+    call(action: "FilledRequest", user: user, request: request)
   end
 
   def self.remove_request(request:, user:)

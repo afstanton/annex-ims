@@ -62,11 +62,32 @@ RSpec.describe ActivityLogger do
     it_behaves_like "an activity log", "ApiGetItemMetadata"
   end
 
+  context "ApiStockItem" do
+    let(:arguments) { { item: item, params: { test: "test" }, api_response: api_response } }
+    subject { described_class.api_stock_item(**arguments) }
+
+    it_behaves_like "an activity log", "ApiStockItem"
+  end
+
   context "ApiRemoveRequest" do
     let(:arguments) { { request: request, params: { test: "test" }, api_response: api_response } }
     subject { described_class.api_remove_request(**arguments) }
 
     it_behaves_like "an activity log", "ApiRemoveRequest"
+  end
+
+  context "ApiScanItem" do
+    let(:arguments) { { item: item, params: { test: "test" }, api_response: api_response } }
+    subject { described_class.api_scan_item(**arguments) }
+
+    it_behaves_like "an activity log", "ApiScanItem"
+  end
+
+  context "ApiSendItem" do
+    let(:arguments) { { item: item, params: { test: "test" }, api_response: api_response } }
+    subject { described_class.api_send_item(**arguments) }
+
+    it_behaves_like "an activity log", "ApiSendItem"
   end
 
   context "AssociatedItemAndBin" do
@@ -130,6 +151,13 @@ RSpec.describe ActivityLogger do
     subject { described_class.dissociate_tray_and_shelf(**arguments) }
 
     it_behaves_like "an activity log", "DissociatedTrayAndShelf"
+  end
+
+  context "FilledRequest" do
+    let(:arguments) { { request: request, user: user } }
+    subject { described_class.fill_request(**arguments) }
+
+    it_behaves_like "an activity log", "FilledRequest"
   end
 
   context "RemovedRequest" do
