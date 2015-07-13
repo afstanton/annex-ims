@@ -9,6 +9,7 @@ class TraysController < ApplicationController
       @tray = GetTrayFromBarcode.call(params[:tray][:barcode])
       @size = TraySize.call(@tray.barcode)
     rescue StandardError => e
+      NotifyError.call(exception: e)
       flash[:error] = e.message
       redirect_to trays_path
       return
@@ -43,6 +44,7 @@ class TraysController < ApplicationController
     begin
       AssociateTrayWithShelfBarcode.call(@tray, barcode, current_user)
     rescue StandardError => e
+      NotifyError.call(exception: e)
       flash[:error] = e.message
       redirect_to show_tray_path(:id => @tray.id)
       return
@@ -120,6 +122,7 @@ class TraysController < ApplicationController
       @tray = GetTrayFromBarcode.call(params[:tray][:barcode])
       @size = TraySize.call(@tray.barcode)
     rescue StandardError => e
+      NotifyError.call(exception: e)
       flash[:error] = e.message
       redirect_to trays_items_path
       return
@@ -148,15 +151,21 @@ class TraysController < ApplicationController
       thickness = params[:thickness]
     else
       flash[:error] = 'select a valid thickness'
-      redirect_to show_tray_item_path(:id => @tray.id, :barcode => barcode)
+      redirect_to show_tray_item_path(id: @tray.id, barcode: barcode, thickness: params[:thickness])
       return
     end
 
-    item = GetItemFromBarcode.call(barcode: barcode, user_id: current_user.id)
+    begin
+      item = GetItemFromBarcode.call(barcode: barcode, user_id: current_user.id)
+    rescue StandardError
+      flash[:error] = I18n.t("errors.barcode_not_found", barcode: barcode)
+      redirect_to show_tray_item_path(id: @tray.id, barcode: barcode, thickness: params[:thickness])
+      return
+    end
 
     if item.nil?
-      flash[:error] = I18n.t("errors.barcode_not_found", barcode: barcode)
-      redirect_to missing_tray_item_path(:id => @tray.id)
+      flash[:error] = I18n.t("errors.barcode_not_found", barcode: barcode, thickness: params[:thickness])
+      redirect_to missing_tray_item_path(id: @tray.id)
       return
     end
 
@@ -185,6 +194,7 @@ class TraysController < ApplicationController
       redirect_to show_tray_item_path(:id => @tray.id)
       return
     rescue StandardError => e
+      NotifyError.call(exception: e)
       flash[:error] = e.message
       redirect_to show_tray_item_path(:id => @tray.id)
       return

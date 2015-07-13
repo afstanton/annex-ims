@@ -8,6 +8,7 @@ class ItemsController < ApplicationController
     begin
       @item = GetItemFromBarcode.call(barcode: params[:item][:barcode], user_id: current_user.id)
     rescue StandardError => e
+      NotifyError.call(exception: e)
       flash[:error] = e.message
       redirect_to items_path
       return
@@ -24,6 +25,12 @@ class ItemsController < ApplicationController
 
   def show
     @item = Item.find(params[:id])
+  end
+
+  def item_detail
+    @item = Item.where(barcode: params[:barcode]).take
+    @history = ActivityLogQuery.item_history(@item)
+    @usage = ActivityLogQuery.item_usage(@item)
   end
 
   def restock
@@ -43,11 +50,12 @@ class ItemsController < ApplicationController
   end
 
   def issues
-    @issues = Issue.where("resolved_at IS NULL")
+    @issues = UnresolvedIssueQuery.call(params)
   end
 
   def resolve
-    ResolveIssue.call(current_user.id, params[:issue_id])
+    issue = Issue.find(params[:issue_id])
+    ResolveIssue.call(user: current_user, issue: issue)
 
     redirect_to issues_path
     return

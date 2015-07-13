@@ -38,6 +38,7 @@ Rails.application.routes.draw do
   get "items/issues", to: "items#issues", as: "issues"
   post "items/resolve", to: "items#resolve", as: "resolve_issue"
   get "items/:id", to: "items#show", as: "show_item"
+  get "items/detail/:barcode", to: "items#item_detail", as: "item_detail"
   post "items/:id/restock", to: "items#restock", as: "item_restock"
   get "items/:id/wrong_restock", to: "items#wrong_restock", as: "wrong_restock"
 
@@ -64,6 +65,10 @@ Rails.application.routes.draw do
   get "bins", to: "bins#index", as: "bins"
   get "bins/:id", to: "bins#show", as: "show_bin"
   post "bins", to: "bins#remove", as: "bin_remove"
+
+  get "users", to: "users#index", as: "users"
+  put "users", to: "users#update", as: "update_users"
+  post "users", to: "users#create", as: "create_users"
 
   resources :requests, only: [] do
     collection do

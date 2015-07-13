@@ -1,4 +1,4 @@
-.row
+.row.filter
   .col-md-8
     = select_tag :source, options_for_select([["Aleph", "aleph"], ["ILLiad", "illiad"]]), onchange: "table.draw();"
     = select_tag :req_type, options_for_select([["Loan", "loan"], ["Scan", "scan"]]), onchange: "table.draw();"
@@ -9,12 +9,6 @@
       = link_to sync_requests_path, method: :post, class: 'btn btn-primary' do
         %span.glyphicon.glyphicon-refresh
         = "Refresh"
-%br
-.filter
-  = select_tag :source, options_for_select([["Aleph", "aleph"], ["ILLiad", "illiad"]]), onchange: "table.draw();"
-  = select_tag :req_type, options_for_select([["Loan", "loan"], ["Scan", "scan"]]), onchange: "table.draw();"
-  = label_tag :rapid, "ILLiad Rapid Requests"
-  = check_box_tag :rapid, 1, false, onchange: "table.draw();"
 = form_tag create_batch_path do |f|
   %table.table.table-striped.condensed.datatable{"id" => "requests"}
     %thead
@@ -36,7 +30,8 @@
     %tbody
       - @data.each do |row|
         %tr{"data-params" => row['item_data'].to_json}
-          %td{class: "details-control btn btn-primary", "id" => 'request_' + row['id'].to_s}= 'Results'
+          %td
+            %div{class: "details-control btn btn-primary", "id" => 'request_' + row['id'].to_s}= 'Results'
           %td= row['rapid']
           %td= row['source']
           %td= row['del_type']
@@ -44,7 +39,9 @@
           %td= row['title']
           %td= row['author']
           %td= row['description']
-          %td= row['barcode']
+          %td
+            - unless row['barcode'].blank?
+              = link_to row['barcode'], item_detail_path(row['barcode'])
           %td= row['isbn_issn']
           %td= row['bib_number']
           %td
@@ -113,8 +110,8 @@
     } );
   } );
   function addHandler() {
-    $("td.details-control").unbind('click');
-    $("td.details-control").click(function() {
+    $(".details-control").unbind('click');
+    $(".details-control").click(function() {
       var tr = $(this).closest('tr');
       var row = table.row( tr );
       console.log("my row: %o", tr)

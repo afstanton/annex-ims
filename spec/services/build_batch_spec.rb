@@ -90,5 +90,30 @@ RSpec.describe BuildBatch, search: true do
       Sunspot.commit
     end
 
+    it "logs a MatchedItem for each item in the batch" do
+      test = ["#{request1.id}-#{item.id}", "#{request1.id}-#{item2.id}"]
+      expect(ActivityLogger).to receive(:match_item).with(item: item, request: request1, user: current_user)
+      expect(ActivityLogger).to receive(:match_item).with(item: item2, request: request1, user: current_user)
+      described_class.call(test, current_user)
+    end
+
+    it "logs a BatchedRequest" do
+      test = ["#{request1.id}-#{item.id}"]
+      expect(ActivityLogger).to receive(:batch_request).with(request: request1, user: current_user)
+      described_class.call(test, current_user)
+    end
+
+    it "only logs one BatchedRequest log for a Request with multiple items" do
+      test = ["#{request1.id}-#{item.id}", "#{request1.id}-#{item2.id}"]
+      expect(ActivityLogger).to receive(:batch_request).with(request: request1, user: current_user).once
+      described_class.call(test, current_user)
+    end
+
+    it "logs one BatchedRequest log for a new Request but doesn't log for Requests that were previously added to the batch" do
+      test = ["#{request2.id}-#{item.id}", "#{request2.id}-#{item2.id}"]
+      expect(ActivityLogger).not_to receive(:batch_request).with(request: request1, user: current_user)
+      expect(ActivityLogger).to receive(:batch_request).with(request: request2, user: current_user)
+      described_class.call(test, current_user)
+    end
   end
 end

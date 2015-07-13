@@ -10,6 +10,10 @@ class ActivityLogger
     call(action: "ApiGetItemMetadata", item: item, params: params, api_response: api_response)
   end
 
+  def self.api_get_request_list(api_response:)
+    call(action: "ApiGetRequestList", api_response: api_response)
+  end
+
   def self.api_scan_item(item:, params:, api_response:)
     call(action: "ApiScanItem", item: item, params: params, api_response: api_response)
   end
@@ -38,8 +42,12 @@ class ActivityLogger
     call(action: "AssociatedTrayAndShelf", user: user, tray: tray, shelf: shelf)
   end
 
-  def self.create_issue(issue:, item:)
-    call(action: "CreatedIssue", issue: issue, item: item)
+  def self.batch_request(request:, user:)
+    call(action: "BatchedRequest", user: user, request: request)
+  end
+
+  def self.create_issue(issue:, item:, user:)
+    call(action: "CreatedIssue", issue: issue, item: item, user: user)
   end
 
   def self.create_item(item:, user:)
@@ -66,8 +74,20 @@ class ActivityLogger
     call(action: "FilledRequest", user: user, request: request)
   end
 
+  def self.match_item(item:, request:, user:)
+    call(action: "MatchedItem", item: item, request: request, user: user)
+  end
+
+  def self.receive_request(request:)
+    call(action: "ReceivedRequest", request: request)
+  end
+
   def self.remove_request(request:, user:)
     call(action: "RemovedRequest", request: request, user: user)
+  end
+
+  def self.resolve_issue(issue:, user:)
+    call(action: "ResolvedIssue", issue: issue, user: user)
   end
 
   def self.scan_item(item:, request:, user:)

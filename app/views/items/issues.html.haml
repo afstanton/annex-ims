@@ -14,7 +14,7 @@
       - @issues.each do |issue|
         %tr
           %td= issue.user.username
-          %td= issue.barcode
+          %td= link_to issue.barcode, item_detail_path(issue.barcode)
           %td= t "issues.issue_type.#{issue.issue_type}"
           %td= issue.created_at
           %td
@@ -25,4 +25,5 @@
   :javascript
       $(document).ready(function() {
         window.table = $('#issues').DataTable();
+        $('div.dataTables_filter input').focus();
       } );

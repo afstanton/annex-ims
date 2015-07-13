@@ -62,6 +62,13 @@ RSpec.describe ActivityLogger do
     it_behaves_like "an activity log", "ApiGetItemMetadata"
   end
 
+  context "ApiGetRequestList" do
+    let(:arguments) { { api_response: api_response } }
+    subject { described_class.api_get_request_list(**arguments) }
+
+    it_behaves_like "an activity log", "ApiGetRequestList"
+  end
+
   context "ApiStockItem" do
     let(:arguments) { { item: item, params: { test: "test" }, api_response: api_response } }
     subject { described_class.api_stock_item(**arguments) }
@@ -111,8 +118,15 @@ RSpec.describe ActivityLogger do
     it_behaves_like "an activity log", "AssociatedTrayAndShelf"
   end
 
+  context "BatchedRequest" do
+    let(:arguments) { { request: request, user: user } }
+    subject { described_class.batch_request(**arguments) }
+
+    it_behaves_like "an activity log", "BatchedRequest"
+  end
+
   context "CreatedIssue" do
-    let(:arguments) { { issue: issue, item: item } }
+    let(:arguments) { { issue: issue, item: item, user: user } }
     subject { described_class.create_issue(**arguments) }
 
     it_behaves_like "an activity log", "CreatedIssue"
@@ -160,11 +174,32 @@ RSpec.describe ActivityLogger do
     it_behaves_like "an activity log", "FilledRequest"
   end
 
+  context "MatchedItem" do
+    let(:arguments) { { item: item, request: request, user: user } }
+    subject { described_class.match_item(**arguments) }
+
+    it_behaves_like "an activity log", "MatchedItem"
+  end
+
+  context "ReceivedRequest" do
+    let(:arguments) { { request: request } }
+    subject { described_class.receive_request(**arguments) }
+
+    it_behaves_like "an activity log", "ReceivedRequest"
+  end
+
   context "RemovedRequest" do
     let(:arguments) { { request: request, user: user } }
     subject { described_class.remove_request(**arguments) }
 
     it_behaves_like "an activity log", "RemovedRequest"
+  end
+
+  context "ResolvedIssue" do
+    let(:arguments) { { issue: issue, user: user } }
+    subject { described_class.resolve_issue(**arguments) }
+
+    it_behaves_like "an activity log", "ResolvedIssue"
   end
 
   context "ScannedItem" do
