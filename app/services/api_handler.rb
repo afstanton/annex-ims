@@ -42,7 +42,7 @@ class ApiHandler
 
   def transact!
     raw_response = raw_transact!
-    ApiResponse.new(status_code: raw_response["status"], body: raw_response["results"])
+    ApiResponse.new(status_code: raw_response[:status], body: raw_response[:results])
   rescue Timeout::Error => e
     handle_timeout_exception(e)
   rescue Faraday::TimeoutError => e
@@ -52,7 +52,7 @@ class ApiHandler
   private
 
   def handle_timeout_exception(exception)
-    NotifyError.call(exception: exception)
+    NotifyError.call(exception: exception, parameters: { action: action, params: params }, component: self.class.to_s, action: "transact!")
     ApiResponse.new(status_code: 599, body: {})
   end
 

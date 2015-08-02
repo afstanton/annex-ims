@@ -16,11 +16,18 @@ class ApiPostStockItem
     if response.success?
       response
     else
-      raise ApiStockItemError, "Error sending stock request to API. params: #{params.inspect}, response: #{response.inspect}"
+      handle_error(response)
     end
   end
 
   private
+
+  def handle_error(response)
+    if response.status_code == 422
+      AddIssue.call(item: item, user: nil, type: "aleph_error", message: response.body["message"])
+    end
+    raise ApiStockItemError, "Error sending stock request to API. params: #{params}, response: #{response.attributes}"
+  end
 
   def params
     {
@@ -29,5 +36,4 @@ class ApiPostStockItem
       tray_code: item.tray.barcode
     }
   end
-
 end
