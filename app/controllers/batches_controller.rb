@@ -41,6 +41,7 @@ class BatchesController < ApplicationController
     if !params[:match_id].blank?
       match = Match.find(params[:match_id])
       if !match.blank?
+        ActivityLogger.remove_match(item: match.item, request: match.request, user: current_user)
         match.destroy!
       end
     end
@@ -63,7 +64,6 @@ class BatchesController < ApplicationController
       redirect_to finalize_batch_path
       return
     end
-
   end
 
   def item
@@ -111,7 +111,6 @@ class BatchesController < ApplicationController
     end
 
     @match = @batch.current_match
-
   end
 
   def scan_bin

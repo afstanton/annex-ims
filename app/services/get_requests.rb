@@ -18,7 +18,10 @@ class GetRequests
     requests = []
     requests_data.each do |request_data|
       attributes = request_attributes(request_data)
-      requests << create_or_update_request(attributes)
+      request = create_or_update_request(attributes)
+      if request.present?
+        requests << request
+      end
     end
     requests
   end
@@ -26,6 +29,7 @@ class GetRequests
   def create_or_update_request(attributes)
     request = Request.find_or_initialize_by(trans: attributes["trans"])
     new_record = request.new_record?
+    begin
     request.attributes = attributes
     unless attributes["barcode"].blank?
       update_item_metadata(attributes["barcode"])
@@ -35,9 +39,23 @@ class GetRequests
       ActivityLogger.receive_request(request: request)
     end
     request
+    rescue StandardError => e
+      NotifyError.call(exception: e, parameters: { attributes: attributes, request: request }, component: self.class.to_s, action: "create_or_update_request")
+      nil
+    end
   end
 
   def request_attributes(request_data)
+    attributes = build_request_attributes(request_data)
+    attributes.each do |_key, value|
+      if value.is_a?(String)
+        value.encode!("UTF-8", invalid: :replace, undef: :replace)
+      end
+    end
+    attributes
+  end
+
+  def build_request_attributes(request_data) # rubocop:disable Metrics/AbcSize
     if !request_data["barcode"].blank?
       criteria_type = "barcode"
       criteria = request_data["barcode"]
@@ -72,7 +90,7 @@ class GetRequests
       "trans" => trans,
       "criteria_type" => criteria_type,
       "criteria" => criteria,
-      "requested" => Date.today.to_s, # Should be date requested, but that doesn"t seem available.
+      "requested" => request_data["request_date_time"],
       "rapid" => rapid,
       "source" => source,
       "del_type" => del_type,
@@ -83,7 +101,11 @@ class GetRequests
       "description" => request_data["description"],
       "barcode" => request_data["barcode"],
       "isbn_issn" => request_data["isbn_issn"],
-      "bib_number" => request_data["bib_number"]
+      "bib_number" => request_data["bib_number"],
+      "patron_institution" => request_data["patron_institution"],
+      "patron_department" => request_data["patron_department"],
+      "patron_status" => request_data["patron_status"],
+      "pickup_location" => request_data["pickup_location"],
     }
   end
 
