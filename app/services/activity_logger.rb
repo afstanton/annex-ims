@@ -1,5 +1,5 @@
 class ActivityLogger
-  DATA_OBJECTS = [:item, :tray, :shelf, :bin, :request, :issue, :api_response, :params]
+  DATA_OBJECTS = [:item, :tray, :shelf, :bin, :request, :issue, :transfer, :api_response, :params]
   attr_reader :action, :user, :data_objects
 
   def self.accept_item(item:, request:, user:)
@@ -54,8 +54,16 @@ class ActivityLogger
     call(action: "CreatedItem", item: item, user: user)
   end
 
+  def self.create_transfer(shelf:, transfer:, user:)
+    call(action: "CreatedTransfer", shelf: shelf, transfer: transfer, user: user)
+  end
+
   def self.destroy_item(item:, user:)
     call(action: "DestroyedItem", item: item, user: user)
+  end
+
+  def self.destroy_transfer(shelf:, transfer:, user:)
+    call(action: "DestroyedTransfer", shelf: shelf, transfer: transfer, user: user)
   end
 
   def self.dissociate_item_and_bin(item:, bin:, user:)

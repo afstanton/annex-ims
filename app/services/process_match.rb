@@ -39,9 +39,6 @@ class ProcessMatch
   end
 
   def dissociate_bin
-    ActivityLogger.dissociate_item_and_bin(item: item, bin: item.bin, user: user)
-
-    item.update!(bin: nil)
     match.update!(bin: nil)
   end
 

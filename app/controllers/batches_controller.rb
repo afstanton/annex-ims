@@ -1,9 +1,15 @@
 class BatchesController < ApplicationController
-
+  before_action :require_admin
   def index
     # Should this be in a service object? It's a relatively simple one-liner.
-    requests = Request.all.where("id NOT IN (SELECT request_id FROM matches WHERE processed IS NULL OR processed != 'skipped')")
+    requests = Request.all.where("id NOT IN (SELECT request_id FROM matches)")
     @data = BuildRequestData.call(requests)
+
+    if current_batch?
+      flash[:notice] = flash_message("active_batch")
+      redirect_to current_batch_path
+      return
+    end
 
     respond_to do |format|
       format.html # index.html.erb
@@ -11,10 +17,13 @@ class BatchesController < ApplicationController
   end
 
   def create
-    if params[:batch].blank?
-      flash[:error] = "No items selected."
-
+    if batch_blank?
+      flash[:error] = flash_message("empty_batch")
       redirect_to batches_path
+      return
+    elsif current_batch?
+      flash[:notice] = flash_message("active_batch")
+      redirect_to current_batch_path
       return
     else
       @batch = BuildBatch.call(params[:batch], current_user)
@@ -34,16 +43,12 @@ class BatchesController < ApplicationController
       redirect_to batches_path
       return
     end
-
   end
 
   def remove
     if !params[:match_id].blank?
       match = Match.find(params[:match_id])
-      if !match.blank?
-        ActivityLogger.remove_match(item: match.item, request: match.request, user: current_user)
-        match.destroy!
-      end
+      remove_match(match: match) unless match.blank?
     end
 
     redirect_to current_batch_path
@@ -161,7 +166,6 @@ class BatchesController < ApplicationController
         end
       end
     end
-
   end
 
   def finalize
@@ -185,7 +189,7 @@ class BatchesController < ApplicationController
       return
     end
 
-    FinishBatch.call(@batch)
+    FinishBatch.call(@batch, current_user)
     flash[:notice] = "Finished processing batch, ready to begin a new batch."
     redirect_to batches_path
   end
@@ -210,5 +214,36 @@ class BatchesController < ApplicationController
     CancelBatch.call(params[:batch_id])
 
     redirect_to view_active_batches_path
+  end
+
+  private
+
+  def remove_match(match:)
+    ActiveRecord::Base.transaction do
+      DestroyMatch.call(match: match, user: current_user)
+      DissociateItemFromBin.call(item: match.item, user: current_user)
+      FinishBatch.call(match.batch, current_user)
+    end
+  end
+
+  def flash_message(type)
+    case type
+    when "active_batch"
+      I18n.t("batches.status.active")
+    when "empty_batch"
+      I18n.t("batches.status.empty_items")
+    end
+  end
+
+  def batch_blank?
+    if params[:batch].blank?
+      true
+    end
+  end
+
+  def current_batch?
+    if current_user.batches.where(active: true).count >= 1
+      true
+    end
   end
 end

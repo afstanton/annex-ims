@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150904181322) do
+ActiveRecord::Schema.define(version: 20160128174804) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -140,6 +140,16 @@ ActiveRecord::Schema.define(version: 20150904181322) do
 
   add_index "shelves", ["barcode"], name: "index_shelves_on_barcode", unique: true, using: :btree
 
+  create_table "transfers", force: :cascade do |t|
+    t.integer  "shelf_id"
+    t.string   "transfer_type"
+    t.integer  "initiated_by_id"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+  end
+
+  add_index "transfers", ["shelf_id"], name: "index_transfers_on_shelf_id", using: :btree
+
   create_table "trays", force: :cascade do |t|
     t.string   "barcode",                    null: false
     t.integer  "shelf_id"
@@ -162,6 +172,7 @@ ActiveRecord::Schema.define(version: 20150904181322) do
     t.datetime "updated_at"
     t.boolean  "admin",              default: false, null: false
     t.datetime "last_activity_at"
+    t.boolean  "worker",             default: false, null: false
   end
 
   add_index "users", ["username"], name: "index_users_on_username", unique: true, using: :btree
@@ -174,5 +185,6 @@ ActiveRecord::Schema.define(version: 20150904181322) do
   add_foreign_key "matches", "requests"
   add_foreign_key "requests", "batches"
   add_foreign_key "requests", "items"
+  add_foreign_key "transfers", "shelves"
   add_foreign_key "trays", "shelves"
 end

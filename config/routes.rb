@@ -64,10 +64,23 @@ Rails.application.routes.draw do
   get "batches/view/active/:id", to: "batches#view_single_active", as: "view_single_active_batch"
   post "batches/view/active", to: "batches#cancel_single_active", as: "cancel_single_active_batch"
 
+  get "transfers/view/active", to: "transfers#view_active", as: "view_active_transfers"
+
+  resources :transfers, only: [:new, :create, :show] do
+    member do
+      put :scan_tray, as: "scan_tray"
+      delete :destroy, as: "destroy"
+      resources :trays, controller: "transfers", only: [:transfer_tray] do
+        put :transfer_tray, as: "transfer"
+      end
+    end
+  end
+
   get "bins", to: "bins#index", as: "bins"
   get "bins/:id", to: "bins#show", as: "show_bin"
   get "bins/detail/:barcode", to: "bins#bin_detail", as: "bin_detail"
-  post "bins", to: "bins#remove", as: "bin_remove"
+  post "bins/remove_match", to: "bins#remove_match", as: "bin_remove"
+  post "bins/process_match", to: "bins#process_match", as: "bin_process"
 
   get "reports", to: "reports#index", as: "reports"
   get "reports/call_report", to: "reports#call_report", as: "call_report"
