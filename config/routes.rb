@@ -23,6 +23,10 @@ Rails.application.routes.draw do
   post "trays/items/:id", to: "trays#associate_item", as: "associate_tray_item"
   post "trays/items/:id/dissociate", to: "trays#dissociate_item", as: "dissociate_tray_item"
   get "trays/items/:id/missing", to: "trays#missing", as: "missing_tray_item"
+  get "trays/items/:id/invalid", to: "trays#invalid", as: "invalid_tray_item"
+  post "trays/items/:id/create", to: "trays#create_item", as: "create_tray_item"
+  get "trays/items/:id/count_items", to: "trays#count_items", as: "count_tray_item"
+  post "trays/items/:id/count_items", to: "trays#count_items", as: "validate_count_tray"
 
   post "trays/:id/withdraw", to: "trays#withdraw", as: "withdraw_tray"
 

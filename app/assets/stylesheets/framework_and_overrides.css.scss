@@ -88,6 +88,7 @@ section {
   @extend .btn-primary;
   @extend .btn-xs;
 }
+
 @media print {
     .doNotPrint, .doNotPrint * { display: none !important; }
 }
@@ -155,7 +156,8 @@ a.list-group-item[aria-expanded="true"] {
 #stocking,
 #items,
 #batches,
-#reports {
+#reports,
+#settings {
   .list-group-item {
     border: solid 2px #bcbcbc;
     border-radius: 5px;
@@ -276,6 +278,9 @@ hr {
 
   .btn {
     margin-left: 6px;
+  }
+  .margin-left {
+    margin-left: 50px;
   }
 }
 
