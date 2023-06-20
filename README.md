@@ -31,7 +31,6 @@ Start thin; This will fire up the application. Sneakers and Postgres should also
 ```console
 $ brew services restart postgresql
 $ export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
-$ bundle exec thin start -C config/thin.yml
 $ brew services start rabbitmq
 $ bundle exec rake sneakers:start
 ```
