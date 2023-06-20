@@ -56,7 +56,8 @@ group :application do
 
   # For item search
   gem 'progress_bar'
-  gem 'sunspot_rails' # , :git => "https://github.com/sunspot/sunspot.git"
+  gem 'searchkick'
+  gem 'opensearch-ruby'
 
   # background processing
   gem 'sneakers'
@@ -103,21 +104,17 @@ group :development, :test do
   gem 'selenium-webdriver', '>= 4.0.0.rc1'
   gem 'spring-commands-rspec'
 
-  # So staging etc can use stand alone Solr
-  gem 'sunspot_solr' # , :git => "https://github.com/sunspot/sunspot.git"
-
   # bundle exec rake doc:rails generates the API under doc/api.
   gem 'sdoc', '~> 2.6.0'
 end
 
 group :test do
   gem 'listen', '~> 3.3'
-  gem 'rack-mini-profiler', '~> 2.0'
+  gem 'rack-mini-profiler', '~> 2.0', require: false
   gem 'rails-controller-testing'
   gem 'shoulda-matchers'
   gem 'simplecov', '>= 0.21.0'
-  gem 'sunspot_matchers'
-  gem 'webmock', '~> 3.7.6'
+  gem 'webmock', '~> 3.18.1'
 end
 
 group :development do

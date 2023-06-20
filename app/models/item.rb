@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Item < ApplicationRecord
+  searchkick
+
   CONDITIONS = %w[
     COVER-DET
     COVER-MISS
@@ -50,7 +52,7 @@ class Item < ApplicationRecord
            class_name: 'Request',
            foreign_key: 'item_id',
            dependent: :restrict_with_exception
-
+=begin
   searchable do
     text :barcode
     text :bib_number
@@ -76,7 +78,7 @@ class Item < ApplicationRecord
     end
     string :status
   end
-
+=end
   def has_correct_prefix?
     unless IsItemBarcode.call(barcode)
       errors.add(:barcode, "must not begin with #{IsShelfBarcode::PREFIX}, #{IsTrayBarcode.prefix}, or #{IsBinBarcode::PREFIX}")

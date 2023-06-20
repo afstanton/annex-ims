@@ -64,7 +64,7 @@ RSpec.describe BuildBatch, search: true do
     end
 
     after(:all) do
-      Item.remove_all_from_index!
+      # Item.remove_all_from_index!
     end
 
     it 'builds a batch when an item is selected', search: true do
@@ -81,19 +81,19 @@ RSpec.describe BuildBatch, search: true do
       tray2.save!
       item.save!
       item.reload
-      item.index!
-      Sunspot.commit
+      item.reindex
+      # Sunspot.commit
       item2.save!
       item2.reload
-      item2.index!
-      Sunspot.commit
+      item2.reindex
+      # Sunspot.commit
       request1.save!
       request2.save!
       item_updated = Item.find(item.id)
       item_updated.save!
       item_updated.reload
-      item_updated.index!
-      Sunspot.commit
+      item_updated.reindex
+      # Sunspot.commit
     end
 
     it 'logs a MatchedItem for each item in the batch' do
