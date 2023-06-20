@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   before_action :check_authentication
   before_action :check_activity
-  before_action :set_raven_context
+  before_action :set_sentry_context
 
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
@@ -16,34 +16,33 @@ class ApplicationController < ActionController::Base
       redirect_to_sign_in
       return
     end
-    unless user_admin? || user_worker?
-      redirect_to_unauthorized
-    end
+    redirect_to_unauthorized unless user_admin? || user_worker?
   end
 
   def check_activity
     if current_user.blank? || IsUserSessionExpired.call(user: current_user)
       sign_out
-      render "users/timed_out"
+      render 'users/timed_out'
       return
     end
     update_activity
   end
 
   def redirect_to_sign_in
-    redirect_to user_oktaoauth_omniauth_authorize_path
+    # repost gem will redirect as a method: :post
+    repost(user_oktaoauth_omniauth_authorize_path, options: { authenticity_token: :auto })
   end
 
   def redirect_to_unauthorized
     raise_404
   end
 
-  def raise_404(message = "Not Found")
+  def raise_404(message = 'Not Found')
     fail ActionController::RoutingError.new(message)
   end
 
   def user_admin?
-    config_admin = ""
+    config_admin = ''
     if Rails.configuration.respond_to? :admin_user_name
       config_admin = Rails.configuration.admin_user_name
     end
@@ -55,9 +54,7 @@ class ApplicationController < ActionController::Base
   end
 
   def require_admin
-    if user_admin? == false
-      redirect_to_unauthorized
-    end
+    redirect_to_unauthorized if user_admin? == false
   end
 
   def update_activity
@@ -66,9 +63,9 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def set_raven_context
-    Raven.user_context(id: session[:current_user_id]) # or anything else in session
-    Raven.extra_context(params: params.to_unsafe_h, url: request.url)
+  def set_sentry_context
+    Sentry.set_user(id: session[:current_user_id]) # or anything else in session
+    Sentry.set_extras(params: params.to_unsafe_h, url: request.url)
   end
 
   # Overwriting the sign_out redirect path method
