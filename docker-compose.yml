@@ -21,8 +21,6 @@ services:
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
       PASSENGER_APP_ENV: ${PASSENGER_APP_ENV}
       ILLIAD_PASSWORD: ${ILLIAD_PASSWORD}
-      SOLR_HOST: ${SOLR_HOST}
-      SOLR_PORT: ${SOLR_PORT}
       RABBITMQ_HOST: ${RABBITMQ_HOST}
       OAUTHTOKEN: ${OAUTHTOKEN}
       API_HOST: ${API_HOST}
@@ -45,17 +43,9 @@ services:
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
       PASSENGER_APP_ENV: ${PASSENGER_APP_ENV}
       ILLIAD_PASSWORD: ${ILLIAD_PASSWORD}
-      SOLR_HOST: ${SOLR_HOST}
-      SOLR_PORT: ${SOLR_PORT}
       RABBITMQ_HOST: ${RABBITMQ_HOST}
       OAUTHTOKEN: ${OAUTHTOKEN}
       RUN_TASK: 2
-  solr:
-    build:
-      context: .
-      dockerfile: Dockerfile.solr
-    ports:
-     - "8984:8983"
   postgres:
     build:
       context: .
@@ -76,6 +66,3 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: "annex-ims"
       RABBITMQ_DEFAULT_VHOST: "annex-ims"
-
-
-

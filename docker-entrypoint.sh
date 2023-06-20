@@ -29,7 +29,7 @@ sed -i 's/{{ secret_key_base }}/'"$SECRET_KEY_BASE"'/g' "$APP_DIR/config/secrets
 sed -i 's/{{ host_name }}/'"$HOST_NAME"'/g' "$APP_DIR/config/secrets.yml"
 sed -i 's/{{ api_token }}/'"$API_TOKEN"'/g' "$APP_DIR/config/secrets.yml"
 if [[ "$PASSENGER_APP_ENV" == "development" ]]; then
-   sed -i 's/{{ api_host }}/'"$API_HOST"'/g' "$APP_DIR/config/secrets.yml" 
+   sed -i 's/{{ api_host }}/'"$API_HOST"'/g' "$APP_DIR/config/secrets.yml"
 fi
 sed -i 's/{{ coral_password }}/'"$CORAL_PASSWORD"'/g' "$APP_DIR/config/secrets.yml"
 sed -i 's/{{ service_password }}/'"$SERVICE_PASSWORD"'/g' "$APP_DIR/config/secrets.yml"
@@ -37,9 +37,6 @@ sed -i 's/{{ refworks_password }}/'"$REFWORKS_PASSWORD"'/g' "$APP_DIR/config/sec
 sed -i 's/{{ sentrydsn }}/'"$SENTRYDN"'/g' "$APP_DIR/config/secrets.yml"
 sed -i 's/{{ illiad_password }}/'"$ILLIAD_PASSWORD"'/g' "$APP_DIR/config/secrets.yml"
 sed -i 's/{{ rabbitmq_host }}/'"$RABBITMQ_HOST"'/g' "$APP_DIR/config/secrets.yml"
-
-echo "Modify sunspot file for solr"
-sed -i 's/{{ solr_host }}/'"$SOLR_HOST"'/g' "$APP_DIR/config/sunspot.yml"
 
 echo "Modify webapp config file for PASSENGER_APP_ENV setting"
 sed -i 's/{{ passenger_app_env }}/'"$PASSENGER_APP_ENV"'/g' "/etc/nginx/sites-enabled/webapp.conf"
@@ -50,18 +47,15 @@ RAILS_ENV=$PASSENGER_APP_ENV bundle exec rake assets:precompile
 echo "Fix permissions on $APP_DIR folder"
 chown -R app:app $APP_DIR
 
-echo "Need to wait for SOLR before running rake jobs"
-if ! "$APP_DIR/wait-for-it.sh" $SOLR_HOST:8983 -t 180; then exit 1; fi
-
 if [[ "$PASSENGER_APP_ENV" == "development" ]]; then
-    if  [[ $RUN_TASK == 1 ]]; then  
+    if  [[ $RUN_TASK == 1 ]]; then
         echo "Run development database migrations"
         RAILS_ENV=$PASSENGER_APP_ENV bundle exec rake db:migrate
     fi
 fi
 
 if [[ "$PASSENGER_APP_ENV" == "development" ]]; then
-    if  [[ $RUN_TASK == 1 ]]; then  
+    if  [[ $RUN_TASK == 1 ]]; then
         echo "Adding sample bins"
         RAILS_ENV=$PASSENGER_APP_ENV bundle exec rake sample:bins
         echo "Adding sample shelves"
@@ -82,7 +76,7 @@ echo "Wait an additional 15 seconds"
 sleep 15
 
 if  [[ $RUN_TASK == 1 ]]; then
-    if [[ "$PASSENGER_APP_ENV" != "development" ]]; then 
+    if [[ "$PASSENGER_APP_ENV" != "development" ]]; then
         echo "Run database migrations"
         RAILS_ENV=$PASSENGER_APP_ENV bundle exec rake db:migrate
     fi
