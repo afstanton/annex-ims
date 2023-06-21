@@ -1,8 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe SearchItems, search: true do
-  let(:item) { create(:item, chron: 'TEST CHRON') }
-  let(:deac_item) { create(:item, status: 9, title: item.title) }
+  let(:item) { create(:item, :reindex, chron: 'TEST CHRON') }
+  let(:deac_item) { create(:item, :reindex, status: 9, title: item.title) }
   let(:filter) { {} }
   subject { described_class.call(filter) }
 
@@ -57,7 +57,7 @@ RSpec.describe SearchItems, search: true do
   end
 
   context 'per_page' do
-    let(:item) { create(:item, chron: '1') }
+    let(:item) { create(:item, :reindex, chron: '1') }
     let(:filter) { { criteria_type: 'any', criteria: item.title } }
 
     it 'defaults to 50 per page' do
@@ -173,7 +173,7 @@ RSpec.describe SearchItems, search: true do
 
   context 'conditions' do
     let(:conditions) { ['COVER-MISS', 'PAGES-BRITTLE', 'SPINE-DET'] }
-    let(:item) { create(:item, conditions: conditions) }
+    let(:item) { create(:item, :reindex, conditions: conditions) }
 
     context 'all' do
       let(:filter) { { condition_bool: 'all' } }
