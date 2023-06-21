@@ -13,7 +13,6 @@ sudo -u app bundle install
 echo "Create template files"
 cp "$APP_DIR/config/secrets.yml.example" "$APP_DIR/config/secrets.yml"
 cp "$APP_DIR/config/database.yml.example" "$APP_DIR/config/database.yml"
-cp "$APP_DIR/config/sunspot.yml.example" "$APP_DIR/config/sunspot.yml"
 
 echo "Modify config file for database"
 sed -i 's/{{ database_host }}/'"$DB_HOST"'/g' "$APP_DIR/config/database.yml"
