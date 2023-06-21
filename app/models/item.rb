@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Item < ApplicationRecord
-  searchkick
+  searchkick callbacks: :async, batch_size: 1000, index_prefix: 'item'
 
   CONDITIONS = %w[
     COVER-DET
@@ -79,6 +79,27 @@ class Item < ApplicationRecord
     string :status
   end
 =end
+
+  def search_data
+    {
+      barcode: barcode,
+      bib_number: bib_number,
+      call_number: call_number,
+      isbn_issn: isbn_issn,
+      title: title,
+      author: author,
+      chron: chron,
+      conditions: conditions,
+      initial_ingest: initial_ingest,
+      last_ingest: last_ingest,
+      tray_barcode: tray.present? ? tray.barcode : nil,
+      shelf_barcode: shelf.present? ? shelf.barcode : nil,
+      bin_barcode: bin.present? ? bin.barcode : nil,
+      requested: requests.map(&:requested),
+      status: status
+    }
+  end
+
   def has_correct_prefix?
     unless IsItemBarcode.call(barcode)
       errors.add(:barcode, "must not begin with #{IsShelfBarcode::PREFIX}, #{IsTrayBarcode.prefix}, or #{IsBinBarcode::PREFIX}")
