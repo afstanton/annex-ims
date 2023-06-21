@@ -15,5 +15,13 @@ FactoryBot.define do
     metadata_status 'complete'
     disposition nil
     status 0
+
+    # Note: This should be the last trait in the list so `reindex` is called
+    # after all the other callbacks complete.
+    trait :reindex do
+      after(:create) do |item, _evaluator|
+        item.reindex(refresh: true)
+      end
+    end
   end
 end

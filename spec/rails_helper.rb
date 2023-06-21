@@ -86,6 +86,18 @@ RSpec.configure do |config|
 
       # Reload all factories
       FactoryBot.reload
+
+      # reindex models
+      Item.reindex
+
+      # and disable callbacks
+      Searchkick.disable_callbacks
+    end
+  end
+
+  config.around(:each, search: true) do |example|
+    Searchkick.callbacks(nil) do
+      example.run
     end
   end
 
