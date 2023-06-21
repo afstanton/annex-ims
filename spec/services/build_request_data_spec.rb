@@ -28,8 +28,6 @@ RSpec.describe BuildRequestData do
   end
   let(:requests) { [instance_double(Request, id: 1, criteria_type: 'bib_number', criteria: 'bib_number', **request_data)] }
   let(:item) { instance_double(Item, id: 1, **item_data) }
-  # let(:results) { instance_double(Sunspot::Search::PaginatedCollection, total_pages: 1) }
-  # let(:search) { instance_double(Sunspot::Search::StandardSearch, results: results) }
   let(:results) {  }
   let(:search) {  }
   let(:shelf) { instance_double(Shelf, barcode: 'shelf_barcode') }

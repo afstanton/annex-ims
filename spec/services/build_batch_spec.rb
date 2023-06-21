@@ -82,18 +82,15 @@ RSpec.describe BuildBatch, search: true do
       item.save!
       item.reload
       item.reindex
-      # Sunspot.commit
       item2.save!
       item2.reload
       item2.reindex
-      # Sunspot.commit
       request1.save!
       request2.save!
       item_updated = Item.find(item.id)
       item_updated.save!
       item_updated.reload
       item_updated.reindex
-      # Sunspot.commit
     end
 
     it 'logs a MatchedItem for each item in the batch' do

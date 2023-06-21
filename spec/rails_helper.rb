@@ -5,9 +5,6 @@ require_relative '../config/environment'
 require 'rspec/rails'
 
 # Add additional requires below this line. Rails is not loaded until this point!
-# require 'sunspot_matchers'
-# require 'sunspot_matchers/matchers'
-# require 'sunspot_matchers/sunspot_session_spy'
 require 'webmock/rspec'
 require 'factory_bot_rails'
 
@@ -126,11 +123,6 @@ RSpec.configure do |config|
   config.include Devise::Test::ControllerHelpers, type: :controller
   config.include FactoryBot::Syntax::Methods
   config.include ApiHelper
-  # config.include SunspotMatchers
-
-  config.before(:each) do |_example|
-    # Sunspot.session = SunspotMatchers::SunspotSessionSpy.new(Sunspot.session)
-  end
 
   config.include(Shoulda::Matchers::ActiveModel, type: :model)
   config.include(Shoulda::Matchers::ActiveRecord, type: :model)

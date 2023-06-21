@@ -33,11 +33,9 @@ RSpec.describe SearchItems, search: true do
       item.save!
       item.reload
       item.reindex
-      # Sunspot.commit
       deac_item.save!
       deac_item.reload
       deac_item.reindex
-      # Sunspot.commit
     end
 
     let(:filter) { { criteria_type: 'any', criteria: deac_item.title } }
