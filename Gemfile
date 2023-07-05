@@ -75,6 +75,9 @@ end
 gem 'ice_cube', git: 'https://github.com/ice-cube-ruby/ice_cube.git' # For scheduling tasks
 gem 'whenever', require: false # For cron tasks
 
+# For faster JSON
+gem 'oj'
+
 group :deployment do
   # Use Capistrano for deployment
   gem 'capistrano', '= 3.11.2'
