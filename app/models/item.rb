@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Item < ApplicationRecord
-  searchkick callbacks: :async, batch_size: 1000
+  searchkick index_prefix: "ims"
 
   CONDITIONS = %w[
     COVER-DET

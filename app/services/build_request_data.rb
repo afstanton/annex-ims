@@ -37,7 +37,7 @@ class BuildRequestData
       }
 
       if items.present?
-        if items.total_pages > 1
+        if items.count > filter[:per_page]
           request_data['error'] = 'Too many matches found. Not all items are being displayed.'
         end
 

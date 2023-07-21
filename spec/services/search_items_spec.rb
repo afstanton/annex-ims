@@ -26,7 +26,7 @@ RSpec.describe SearchItems, search: true do
     end
 
     after :all do
-      # Item.remove_all_from_index!
+      Item.search_index.clean_indices
     end
 
     def save_all

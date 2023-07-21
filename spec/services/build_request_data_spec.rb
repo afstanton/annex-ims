@@ -28,8 +28,8 @@ RSpec.describe BuildRequestData do
   end
   let(:requests) { [instance_double(Request, id: 1, criteria_type: 'bib_number', criteria: 'bib_number', **request_data)] }
   let(:item) { instance_double(Item, id: 1, **item_data) }
-  let(:results) {  }
-  let(:search) {  }
+  let(:results) { [item] }
+  let(:search) { instance_double(SearchItems::Results, results: results) }
   let(:shelf) { instance_double(Shelf, barcode: 'shelf_barcode') }
   let(:tray) { instance_double(Tray, barcode: 'tray_barcode') }
 
@@ -42,7 +42,7 @@ RSpec.describe BuildRequestData do
     it 'calls SearchItems with expected values' do
       request = requests.first
       expect(SearchItems).to receive(:call).
-        with(criteria_type: request.criteria_type, criteria: request.criteria, per_page: 5_000).
+        with({ criteria_type: request.criteria_type, criteria: request.criteria, per_page: 5_000 }).
         and_return(search)
       described_class.call(requests)
     end
@@ -64,7 +64,7 @@ RSpec.describe BuildRequestData do
     end
 
     it 'returns an error when there are too many items to display for a request' do
-      allow(results).to receive(:total_pages).and_return(2)
+      allow(results).to receive(:count).and_return(5001)
       result = described_class.call(requests)
       expect(result[0]).to include('error')
     end

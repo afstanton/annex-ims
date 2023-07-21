@@ -48,7 +48,7 @@ class SearchItems
   private
 
   def search_results
-    results = EmptyResults.new
+    results = []
 =begin
     Item.search do
       without(:bin_barcode, 'BIN-DEAC-HAND-01')
@@ -116,7 +116,7 @@ class SearchItems
       order_by(:chron, :asc)
     end
 =end
-    results
+    Results.new(results)
   end
 
   def date_start
@@ -200,6 +200,20 @@ class SearchItems
 
     def total
       0
+    end
+  end
+
+  class Results
+    def initialize(results)
+      @results = results || []
+    end
+
+    def results
+      @results
+    end
+
+    def total
+      @results.count
     end
   end
 end

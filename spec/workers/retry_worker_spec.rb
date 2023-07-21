@@ -36,8 +36,8 @@ RSpec.describe RetryWorker, type: :worker do
 
     describe '#work' do
       it 'calls original_work' do
-        expect(subject).to receive(:original_work).with(test: 'test').and_return('worked!')
-        expect(subject.work(test: 'test')).to eq('worked!')
+        expect(subject).to receive(:original_work).with({ test: 'test' }).and_return('worked!')
+        expect(subject.work({ test: 'test' })).to eq('worked!')
       end
 
       it 'notifies on errors and rejects' do

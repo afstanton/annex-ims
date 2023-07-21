@@ -5,7 +5,7 @@ RSpec.describe UnresolvedTrayIssueQuery do
 
   it 'will query for all tray_issues that have not been resolved' do
     relation = double
-    expect(relation).to receive(:where).with(resolved_at: nil)
+    expect(relation).to receive(:where).with({ resolved_at: nil })
     subject.call({}, relation: relation)
   end
 
@@ -17,8 +17,8 @@ RSpec.describe UnresolvedTrayIssueQuery do
     create(:tray_issue, resolved_at: Time.now)
 
     # Overloading expectations so we don't need
-    expect(subject.call(barcode: tray_issue1.barcode)).to eq([tray_issue1])
-    expect(subject.call(barcode: '')).to eq([tray_issue1, tray_issue2])
+    expect(subject.call({ barcode: tray_issue1.barcode })).to eq([tray_issue1])
+    expect(subject.call({ barcode: '' })).to eq([tray_issue1, tray_issue2])
     expect(subject.call({})).to eq([tray_issue1, tray_issue2])
   end
 end

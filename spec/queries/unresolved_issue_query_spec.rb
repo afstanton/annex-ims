@@ -17,8 +17,8 @@ RSpec.describe UnresolvedIssueQuery do
     create(:issue, resolved_at: Time.now)
 
     # Overloading expectations so we don't need
-    expect(subject.call(barcode: issue1.barcode)).to eq([issue1])
-    expect(subject.call(barcode: '')).to eq([issue1, issue2])
+    expect(subject.call({ barcode: issue1.barcode })).to eq([issue1])
+    expect(subject.call({ barcode: ''} )).to eq([issue1, issue2])
     expect(subject.call({})).to eq([issue1, issue2])
   end
 end
