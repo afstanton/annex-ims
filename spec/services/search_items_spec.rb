@@ -46,11 +46,11 @@ RSpec.describe SearchItems, search: true do
     end
   end
 
-  context 'page' do
+  context 'page', search: true do
     let(:filter) { { criteria_type: 'any', criteria: item.title, page: 2 } }
 
     it 'returns the second page of results' do
-      expect(subject.results).to eq([])
+      expect(subject.results.to_a).to eq([])
       # expect(Sunspot.session).to be_a_search_for(Item)
       # expect(Sunspot.session).to have_search_params(:paginate, page: 2, per_page: 50)
     end

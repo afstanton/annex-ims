@@ -49,6 +49,45 @@ class SearchItems
 
   def search_results
     results = []
+    where = { bin_barcode: { not: ['BIN-DEAC=HAND-01', 'BIN-REM-HAND-01'] } }
+
+    unless search?
+      where[:status] = { not: 'deaccessioned' }
+    end
+
+    if search_tray?
+      where[:tray_barcode] = fetch(:criteria)
+    end
+
+    if search_shelf?
+      where[:shelf_barcode] = fetch(:criteria)
+    end
+
+    if search_fulltext?
+      # remove the special character '-' because they screw with isbn queries
+      # we may also want to consider removing other special chars eg. *,+,"
+      criteria = fetch(:criteria).gsub(/[\-\.]/, '')
+      where[:fulltext] = criteria
+    end
+
+    if search_conditions?
+      case fetch(:condition_bool)
+      when 'all'
+        where[:conditions] = conditions
+      when 'any'
+        where[:conditions] = { any: conditions }
+      when 'none'
+        where[:conditions] = { not: conditions }
+      end
+    end
+
+    if search_date?
+      where[date_field] = date_start..date_finish
+    end
+
+    # results = Item.where(where).order(:chron).page(page).per(per_page)
+    results = Item.search(where, order: :chron, limit: per_page, offset: (page - 1) * per_page)
+
 =begin
     Item.search do
       without(:bin_barcode, 'BIN-DEAC-HAND-01')
