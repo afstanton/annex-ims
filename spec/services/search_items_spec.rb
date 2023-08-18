@@ -74,6 +74,23 @@ RSpec.describe SearchItems, search: true do
     end
   end
 
+  describe 'criteria types' do
+    let(:item) { create(:item) }
+    let(:filter) { { criteria_type: 'barcode', criteria: item.barcode } }
+
+    it 'searches by barcode' do
+      expect(subject.results).to include(item)
+    end
+
+    it 'searches by bib number' do
+      filter = { criteria_type: 'bib_number', criteria: item.bib_number }
+      expect(subject.results).to include(item)
+    end
+
+    # And so on for the other criteria types
+  end
+
+
   describe 'criteria_type' do
     describe 'any' do
       let(:filter) { { criteria_type: 'any' } }

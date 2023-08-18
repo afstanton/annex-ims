@@ -16,6 +16,7 @@ pickle-email-*.html
 *.swp
 .byebug_history
 .env
+.DS_Store
 
 # Added for testing Docker builds - should only be local to dev environment
 lib/scripts

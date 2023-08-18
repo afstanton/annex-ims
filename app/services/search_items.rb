@@ -49,44 +49,52 @@ class SearchItems
 
   def search_results
     results = []
-    where = { bin_barcode: { not: ['BIN-DEAC=HAND-01', 'BIN-REM-HAND-01'] } }
+    query = {}
+    query[:where] = { bin_barcode: { not: ['BIN-DEAC=HAND-01', 'BIN-REM-HAND-01'] } }
 
     unless search?
-      where[:status] = { not: 'deaccessioned' }
+      query[:where][:status] = { not: 'deaccessioned' }
     end
 
     if search_tray?
-      where[:tray_barcode] = fetch(:criteria)
+      criteria = fetch(:criteria)
+      fields = [:tray_barcode]
     end
 
     if search_shelf?
-      where[:shelf_barcode] = fetch(:criteria)
+      criteria = fetch(:criteria)
+      fields = [:shelf_barcode]
     end
 
     if search_fulltext?
       # remove the special character '-' because they screw with isbn queries
       # we may also want to consider removing other special chars eg. *,+,"
       criteria = fetch(:criteria).gsub(/[\-\.]/, '')
-      where[:fulltext] = criteria
+      fields = fulltext_fields
     end
 
     if search_conditions?
       case fetch(:condition_bool)
       when 'all'
-        where[:conditions] = conditions
+        query[:where][:conditions] = conditions
       when 'any'
-        where[:conditions] = { any: conditions }
+        query[:where][:conditions] = { any: conditions }
       when 'none'
-        where[:conditions] = { not: conditions }
+        query[:where][:conditions] = { not: conditions }
       end
     end
 
     if search_date?
-      where[date_field] = date_start..date_finish
+      query[:where][date_field] = date_start..date_finish
     end
 
+    query[:fields] = fields
+    query[:order] = :chron
+    query[:limit] = per_page
+    query[:offset] = (page - 1) * per_page
+
     # results = Item.where(where).order(:chron).page(page).per(per_page)
-    results = Item.search(where, order: :chron, limit: per_page, offset: (page - 1) * per_page)
+    results = Item.search(criteria, **query)
 
 =begin
     Item.search do
@@ -155,7 +163,8 @@ class SearchItems
       order_by(:chron, :asc)
     end
 =end
-    Results.new(results)
+# debugger
+    Results.new(results.to_a)
   end
 
   def date_start
@@ -216,7 +225,7 @@ class SearchItems
     elsif fetch(:criteria_type) == 'shelf'
       nil
     else
-      fetch(:criteria_type).to_sym
+      [fetch(:criteria_type).to_sym]
     end
   end
 
@@ -244,6 +253,7 @@ class SearchItems
 
   class Results
     def initialize(results)
+      # debugger
       @results = results || []
     end
 
