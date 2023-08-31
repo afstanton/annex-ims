@@ -61,10 +61,21 @@ RSpec.configure do |config|
     DatabaseCleaner.start
   end
 
+  config.before :each, search: true do
+    # reindex models
+    Item.reindex
+  end
+
   config.after(:each) do
     DatabaseCleaner.clean
   end
-
+=begin
+  config.after :each, search: true do
+    DatabaseCleaner.clean
+    # reindex models
+    Item.reindex
+  end
+=end
   config.after(:all) do
     DatabaseCleaner.clean
   end
@@ -86,13 +97,13 @@ RSpec.configure do |config|
 
       # Reload all factories
       FactoryBot.reload
-
-      # reindex models
-      Item.reindex
-
-      # and disable callbacks
-      Searchkick.disable_callbacks
     end
+
+    # reindex models
+    Item.reindex
+
+    # and disable callbacks
+    Searchkick.disable_callbacks
   end
 
   config.around(:each, search: true) do |example|

@@ -75,7 +75,7 @@ RSpec.describe SearchItems, search: true do
   end
 
   describe 'criteria types' do
-    let(:item) { create(:item) }
+    let(:item) { create(:item, :reindex) }
     let(:filter) { { criteria_type: 'barcode', criteria: item.barcode } }
 
     it 'searches by barcode' do
@@ -89,7 +89,6 @@ RSpec.describe SearchItems, search: true do
 
     # And so on for the other criteria types
   end
-
 
   describe 'criteria_type' do
     describe 'any' do
@@ -190,7 +189,7 @@ RSpec.describe SearchItems, search: true do
 
   context 'conditions' do
     let(:conditions) { ['COVER-MISS', 'PAGES-BRITTLE', 'SPINE-DET'] }
-    let(:item) { create(:item, :reindex, conditions: conditions) }
+    let!(:item) { create(:item, :reindex, conditions: conditions) }
 
     context 'all' do
       let(:filter) { { condition_bool: 'all' } }
@@ -234,6 +233,7 @@ RSpec.describe SearchItems, search: true do
   end
 
   context 'date_type' do
+    let!(:item) { create(:item, :reindex) }
     let(:filter_date) { 1.week.ago }
     let(:start) { filter_date.ago(1.week).to_s }
     let(:finish) { filter_date.since(1.week).to_s }

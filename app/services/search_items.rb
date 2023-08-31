@@ -76,25 +76,29 @@ class SearchItems
     if search_conditions?
       case fetch(:condition_bool)
       when 'all'
-        query[:where][:conditions] = conditions
+        query[:where][:_and] = { conditions: conditions }
       when 'any'
-        query[:where][:conditions] = { any: conditions }
+        query[:where][:_or] = { conditions: conditions }
       when 'none'
-        query[:where][:conditions] = { not: conditions }
+        query[:where][:_not] = { conditions: conditions }
       end
     end
 
     if search_date?
-      query[:where][date_field] = date_start..date_finish
+      date_range = {}
+      date_range[:gte] = date_start if date_start
+      date_range[:lte] = date_finish if date_finish
+      query[:where][date_field] = date_range
     end
 
     query[:fields] = fields
     query[:order] = :chron
     query[:limit] = per_page
     query[:offset] = (page - 1) * per_page
-
+# debugger
     # results = Item.where(where).order(:chron).page(page).per(per_page)
     results = Item.search(criteria, **query)
+    sleep(1)
 
 =begin
     Item.search do
