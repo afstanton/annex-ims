@@ -88,8 +88,8 @@ end
 group :development, :test do
   gem 'faker'
   gem 'haml_lint', require: false
-  gem 'rubocop', '= 0.75.0' # this is the latest version hound supports
-  gem 'rubocop-rails'
+  gem 'rubocop', require: false
+  gem 'rubocop-rails', require: false
   gem 'webdrivers'
 end
 
